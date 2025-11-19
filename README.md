@@ -1,36 +1,119 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Self-Hosted File Storage System
 
-## Getting Started
+A complete file storage and sharing system built with Next.js, similar to Google Drive but self-hosted.
 
-First, run the development server:
+## Features
 
+- **File Management**: Upload, download, delete, and organize files
+- **Authentication**: JWT-based login/register system
+- **Role-based Access**: Admin, editor, viewer roles
+- **File Sharing**: Secure shareable links with permissions
+- **Folder Hierarchy**: Organize files in folders
+- **Local Storage**: Files stored on server filesystem
+- **Database**: PostgreSQL for metadata storage
+
+## Setup
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Create uploads directory:
+```bash
+mkdir uploads
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set environment variables:
+```bash
+# .env.local
+JWT_SECRET=your-secret-key-here
+DATABASE_URL=postgresql://username:password@localhost:5432/filestore
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Start development server:
+```bash
+npm run dev
+```
 
-## Learn More
+## API Routes
 
-To learn more about Next.js, take a look at the following resources:
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### File Management
+- `POST /api/files/upload` - Upload files
+- `GET /api/files/list` - List files/folders
+- `GET /api/files/download/[id]` - Download file
+- `DELETE /api/files/delete` - Delete file
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database Schema
 
-## Deploy on Vercel
+### Users Table
+- `id` - Primary key
+- `email` - User email (unique)
+- `password` - Hashed password
+- `role` - User role (admin/editor/viewer)
+- `created_at` - Registration timestamp
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Files Table
+- `id` - File UUID
+- `name` - Original filename
+- `path` - Server file path
+- `size` - File size in bytes
+- `mime_type` - File MIME type
+- `owner_id` - User who uploaded
+- `parent_id` - Parent folder ID
+- `is_folder` - Boolean for folders
+- `created_at` - Upload timestamp
+- `updated_at` - Last modified
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Shares Table
+- `id` - Share UUID
+- `file_id` - Referenced file
+- `token` - Share token
+- `permissions` - Access level
+- `expires_at` - Expiration date
+- `created_at` - Share creation
+
+## Usage
+
+1. Register a new account or login
+2. Upload files using the file input
+3. Navigate folders by clicking "Open"
+4. Download files by clicking "Download"
+5. Delete files with "Delete" button
+
+## Security Features
+
+- JWT authentication for all API routes
+- File ownership verification
+- Role-based access control
+- Secure file paths to prevent directory traversal
+- Password hashing with bcrypt
+
+## File Structure
+
+```
+/app
+  /api
+    /auth
+      /login - Authentication endpoint
+      /register - User registration
+    /files
+      /upload - File upload handler
+      /list - File listing
+      /download/[id] - File download
+      /delete - File deletion
+/components
+  FileExplorer.tsx - Main file browser UI
+  LoginForm.tsx - Authentication form
+/lib
+  db.ts - Database connection and schema
+  auth.ts - Authentication utilities
+  middleware.ts - Route protection
+/uploads - File storage directory
+```
+
+This system provides a complete self-hosted alternative to cloud storage services with full control over your data.# doc-manager
